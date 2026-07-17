@@ -5,7 +5,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+// ⚠️ CHANGE THIS LINE - Use PORT from environment variable
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
@@ -118,6 +119,6 @@ Return ONLY the JSON, no other text.
 }
 
 app.listen(port, () => {
-    console.log(`🚀 Server running at http://localhost:${port}`);
-    console.log(`📝 Health check: http://localhost:${port}/api/health`);
+    console.log(`🚀 Server running on port ${port}`);
+    console.log(`📝 Health check: /api/health`);
 });

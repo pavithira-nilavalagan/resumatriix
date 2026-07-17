@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Profile | ResuMatrix</title>
+    <link rel="icon" type="image/png" href="image/resumatrix.png">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800 antialiased">
+
+    <!-- NAVIGATION HEADER - SAME AS INDEX.HTML -->
+    <header class="bg-white/70 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-50 transition-all duration-300 w-full">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
+            <!-- Logo Target -->
+            <a href="index.html" class="flex items-center gap-3 group cursor-pointer min-w-max">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+                    <i data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </div>
+                <span class="font-black text-slate-900 tracking-tight text-lg sm:text-xl">Resume<span class="text-blue-600 group-hover:text-indigo-600 transition-colors duration-300">Matrix</span></span>
+            </a>
+
+            <!-- DESKTOP ACTIONS (Hidden on Mobile) -->
+            <nav id="desktop-nav-actions" class="hidden sm:flex items-center gap-3 sm:gap-6">
+                <!-- Script dynamically updates desktop items -->
+            </nav>
+
+            <!-- MOBILE HAMBURGER BUTTON (Hidden on Desktop) -->
+            <div class="flex sm:hidden">
+                <button id="mobile-menu-toggle" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 rounded-xl border border-slate-200/60 transition-all cursor-pointer">
+                    <i id="menu-icon" data-lucide="menu" class="w-5 h-5 transition-transform duration-200"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- MOBILE DROPDOWN CONTAINER -->
+        <div id="mobile-drawer" class="hidden sm:hidden border-b border-slate-200/80 bg-white w-full shadow-inner transform transition-all duration-300 origin-top">
+            <div id="mobile-nav-actions" class="p-4 space-y-3.5">
+                <!-- Script dynamically updates mobile drawer items -->
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER CONTAINER -->
+    <main class="flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
+
+        <!-- ACCOUNT IDENTITY SUMMARY -->
+        <div class="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-xs flex flex-col sm:flex-row items-center gap-5 relative overflow-hidden group">
+            
+            <!-- Profile Image Upload Container -->
+            <div class="relative z-10 shrink-0">
+                <div class="relative inline-block">
+                    <img id="profile-image" 
+                         src="" 
+                         alt="Profile"
+                         class="w-16 h-16 rounded-full object-cover border-2 border-white shadow-lg shadow-indigo-200 hidden">
+                    <div id="avatar-fallback"
+                        class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-indigo-200 select-none uppercase">
+                        --
+                    </div>
+                    <button type="button" id="upload-profile-btn"
+                        class="absolute -bottom-1 -right-1 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-all cursor-pointer border-2 border-white">
+                        <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+                <input type="file" id="profile-file-picker" accept="image/*" class="hidden" />
+            </div>
+
+            <div class="text-center sm:text-left space-y-1 min-w-0 relative z-10 flex-1">
+                <h2 id="display-name" class="text-xl font-black text-slate-900 tracking-tight truncate">Loading Profile...</h2>
+                <p id="display-email" class="text-xs text-slate-400 font-mono font-medium truncate">checking@register.local</p>
+            </div>
+        </div>
+
+        <!-- PROFILE EDITOR CORE SECTION - FULL WIDTH -->
+        <div class="w-full">
+            <form id="profile-editor-form"
+                class="bg-white rounded-2xl border border-slate-200/60 p-5 sm:p-6 shadow-xs space-y-5">
+                <div class="border-b border-slate-100 pb-3">
+                    <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                        <i data-lucide="sliders" class="w-4 h-4 text-blue-600"></i> Account Configurations
+                    </h3>
+                </div>
+
+                <!-- FORM GRIDS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wide">Username</label>
+                        <input type="text" id="input-username" required
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden bg-slate-50/50">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wide">User Email</label>
+                        <input type="email" id="input-email" required
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden bg-slate-50/50">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wide">Gender</label>
+                        <select id="input-gender"
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden bg-slate-50/50 appearance-none">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] uppercase font-bold text-slate-500 tracking-wide">Phone Number</label>
+                        <input type="tel" id="input-phone"
+                            class="w-full text-xs font-medium px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden bg-slate-50/50">
+                    </div>
+                </div>
+
+                <div id="form-alert" class="hidden text-xs font-bold p-3 rounded-xl flex items-center gap-2"></div>
+
+                <div class="flex items-center justify-end gap-3 border-t border-slate-100 pt-4">
+                    <button type="submit"
+                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer">
+                        <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- BIG FOOTER - Professional Multi-Column Footer -->
+<footer class="bg-slate-900 text-slate-300 border-t border-slate-800 w-full">
+  
+  <!-- Main Footer Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    
+    <!-- Footer Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+      
+      <!-- Column 1: Brand & Description -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+          </div>
+          <span class="font-black text-white text-xl">Resume<span class="text-blue-400">Matrix</span></span>
+        </div>
+        <p class="text-sm text-slate-400 leading-relaxed max-w-xs">
+          Build professional, ATS-optimized resumes instantly. 100% client-side, no data storage, complete privacy.
+        </p>
+        <div class="flex gap-3 pt-2">
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="twitter" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="github" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="youtube" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Column 2: Product Links -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Templates</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Roadmap</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 3: Support Links -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Support</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">API Reference</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Community</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Status</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 4: Company Info & Newsletter -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Press Kit</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+        </ul>
+        
+        <!-- Newsletter Signup -->
+        <div class="mt-6">
+          <p class="text-sm text-slate-400 mb-2">Subscribe to updates</p>
+          <div class="flex">
+            <input type="email" placeholder="Email address" class="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-l-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg text-sm font-medium transition-colors">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- Footer Bottom Bar -->
+    <div class="mt-16 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+      
+      <div class="text-sm text-slate-500">
+        &copy; 2026 Resume Matrix. All rights reserved.
+      </div>
+      
+      <div class="flex flex-wrap items-center gap-6 text-sm">
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Cookie Policy</a>
+        <div class="flex items-center gap-2 text-slate-500">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+          <span class="text-xs">Secure & Private</span>
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</footer>
+
+    <!-- Add PDF.js Library Dependency via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js">
+    </script>
+
+    <!-- STATE MANAGEMENT ENGINE SCRIPT -->
+    <script>
+        // Specify the path to the background PDF worker thread script
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CHECK FOR EXISTING SESSION ---
+            let userSession = JSON.parse(localStorage.getItem('currentUser'));
+
+            // If no user session exists, redirect to index.html
+            if (!userSession || !userSession.email) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load complete user data from allUsers registry
+            let allUsers = JSON.parse(localStorage.getItem('allUsers')) || {};
+            
+            // If user exists in allUsers, use that data (which includes gender, phone, and profile)
+            if (allUsers[userSession.email]) {
+                // Merge the allUsers data into userSession, preserving all fields
+                userSession = {
+                    ...userSession,
+                    ...allUsers[userSession.email]
+                };
+                // Save the merged data back to currentUser
+                localStorage.setItem('currentUser', JSON.stringify(userSession));
+            } else {
+                // If user not in allUsers, create entry with current data
+                allUsers[userSession.email] = {
+                    name: userSession.name || '',
+                    email: userSession.email,
+                    gender: userSession.gender || '',
+                    phone: userSession.phone || '',
+                    profile: userSession.profile || '',
+                    userId: userSession.userId || 'user_' + Date.now()
+                };
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+            }
+
+            const desktopNav = document.getElementById('desktop-nav-actions');
+            const mobileNav = document.getElementById('mobile-nav-actions');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileDrawer = document.getElementById('mobile-drawer');
+            const menuIcon = document.getElementById('menu-icon');
+            const avatarFallback = document.getElementById('avatar-fallback');
+            const profileImage = document.getElementById('profile-image');
+            const displayName = document.getElementById('display-name');
+            const displayEmail = document.getElementById('display-email');
+            const profileForm = document.getElementById('profile-editor-form');
+            const formAlert = document.getElementById('form-alert');
+            const uploadProfileBtn = document.getElementById('upload-profile-btn');
+            const profileFilePicker = document.getElementById('profile-file-picker');
+
+            const inputUsername = document.getElementById('input-username');
+            const inputEmail = document.getElementById('input-email');
+            const inputGender = document.getElementById('input-gender');
+            const inputPhone = document.getElementById('input-phone');
+
+            function renderProfileContext() {
+                displayName.textContent = userSession.name || 'Anonymous Specialist';
+                displayEmail.textContent = userSession.email || 'no-email@identity.local';
+                
+                // Handle profile image
+                if (userSession.profile) {
+                    profileImage.src = userSession.profile;
+                    profileImage.classList.remove('hidden');
+                    avatarFallback.classList.add('hidden');
+                } else {
+                    avatarFallback.textContent = userSession.name ? userSession.name.substring(0, 2) : 'EX';
+                    profileImage.classList.add('hidden');
+                    avatarFallback.classList.remove('hidden');
+                }
+                
+                inputUsername.value = userSession.name || '';
+                inputEmail.value = userSession.email || '';
+                inputGender.value = userSession.gender || '';
+                inputPhone.value = userSession.phone || '';
+            }
+            renderProfileContext();
+
+            // Compress image function
+            function compressImage(dataUrl, maxWidth = 150, maxHeight = 150, quality = 0.7) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        // Calculate new dimensions
+                        if (width > height) {
+                            if (width > maxWidth) {
+                                height = Math.round(height * maxWidth / width);
+                                width = maxWidth;
+                            }
+                        } else {
+                            if (height > maxHeight) {
+                                width = Math.round(width * maxHeight / height);
+                                height = maxHeight;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Convert to JPEG with quality setting
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                        resolve(compressedDataUrl);
+                    };
+                    img.src = dataUrl;
+                });
+            }
+
+            // Profile image upload handler
+            uploadProfileBtn.addEventListener('click', () => {
+                profileFilePicker.click();
+            });
+
+            profileFilePicker.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async function(event) {
+                        try {
+                            // Compress the image before saving
+                            const compressedImage = await compressImage(event.target.result, 150, 150, 0.7);
+                            
+                            userSession.profile = compressedImage;
+                            
+                            // Update allUsers registry with profile image
+                            let allUsers = JSON.parse(localStorage.getItem('allUsers')) || {};
+                            if (allUsers[userSession.email]) {
+                                allUsers[userSession.email].profile = compressedImage;
+                                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+                            }
+                            
+                            // Save to currentUser
+                            localStorage.setItem('currentUser', JSON.stringify(userSession));
+                            
+                            // Update UI
+                            profileImage.src = compressedImage;
+                            profileImage.classList.remove('hidden');
+                            avatarFallback.classList.add('hidden');
+                            
+                            // Show success message
+                            formAlert.className =
+                                "text-xs font-bold p-3 rounded-xl flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-100";
+                            formAlert.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Profile image updated successfully.`;
+                            formAlert.classList.remove('hidden');
+                            lucide.createIcons();
+                            setTimeout(() => formAlert.classList.add('hidden'), 4000);
+                        } catch (err) {
+                            console.error('Error compressing image:', err);
+                            alert('Failed to process image. Please try again.');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error('Error reading file:', err);
+                    alert('Failed to read image file. Please try again.');
+                }
+            });
+
+            // --- SAME NAVIGATION LOGIC AS INDEX.HTML ---
+            if (userSession) {
+                desktopNav.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-slate-600 font-bold flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200/40">
+                            <a href="profile.html"><i data-lucide="user" class="w-3.5 h-3.5 text-blue-600"></i></a> ${userSession.name}
+                        </span>
+                        <a href="dashboard.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-102">
+                            Go to Workspace
+                        </a>
+                        <button class="logout-trigger text-slate-400 hover:text-red-500 p-2 rounded-xl border border-slate-200/60 transition-all cursor-pointer bg-slate-50 flex items-center justify-center active:scale-95 shadow-2xs" title="Sign Out">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                `;
+
+                mobileNav.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                            <a href="profile.html"><i data-lucide="user" class="w-4 h-4 text-blue-600"></i></a>
+                            <div class="text-xs font-bold text-slate-800">${userSession.name}</div>
+                        </div>
+                        <a href="dashboard.html" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold py-3 rounded-xl shadow-xs active:scale-98 transition-transform">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Open Active Workspace
+                        </a>
+                        <button class="logout-trigger flex items-center justify-center gap-2 w-full text-red-600 bg-red-50 hover:bg-red-100 text-xs font-bold py-3 rounded-xl border border-red-100 transition-all cursor-pointer active:scale-98">
+                            <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out Account
+                        </button>
+                    </div>
+                `;
+
+            } else {
+                desktopNav.innerHTML = `
+                    <a href="signin.html" class="text-xs sm:text-sm text-slate-600 font-bold hover:text-slate-900 transition-colors">Sign In</a>
+                    <a href="signup.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-102">
+                        Create Account
+                    </a>
+                `;
+
+                mobileNav.innerHTML = `
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="signin.html" class="flex items-center justify-center border border-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl bg-slate-50 active:scale-95 transition-transform">Sign In</a>
+                        <a href="signup.html" class="flex items-center justify-center bg-blue-600 text-white text-xs font-bold py-3 rounded-xl shadow-xs active:scale-95 transition-transform">Sign Up</a>
+                    </div>
+                `;
+            }
+
+            // Re-initialize Lucide icons after injecting HTML
+            lucide.createIcons();
+
+            profileForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Get values from form
+                const name = inputUsername.value.trim();
+                const email = inputEmail.value.trim();
+                const gender = inputGender.value;
+                const phone = inputPhone.value.trim();
+
+                // Update userSession object with all fields
+                userSession.name = name;
+                userSession.email = email;
+                userSession.gender = gender;
+                userSession.phone = phone;
+                
+                // Save to localStorage
+                localStorage.setItem('currentUser', JSON.stringify(userSession));
+
+                // Update allUsers registry with complete data
+                let allUsers = JSON.parse(localStorage.getItem('allUsers')) || {};
+                allUsers[userSession.email] = {
+                    name: name,
+                    email: email,
+                    gender: gender,
+                    phone: phone,
+                    profile: userSession.profile || '',
+                    userId: userSession.userId || 'user_' + Date.now()
+                };
+                localStorage.setItem('allUsers', JSON.stringify(allUsers));
+
+                renderProfileContext();
+                formAlert.className =
+                    "text-xs font-bold p-3 rounded-xl flex items-center gap-2 bg-emerald-50 text-emerald-700 border border-emerald-100";
+                formAlert.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Profile updated successfully.`;
+                formAlert.classList.remove('hidden');
+                lucide.createIcons();
+                setTimeout(() => formAlert.classList.add('hidden'), 4000);
+            });
+
+            // Drawer Controllers
+            mobileMenuToggle.addEventListener('click', () => {
+                const isClosed = mobileDrawer.classList.contains('hidden');
+                mobileDrawer.classList.toggle('hidden', !isClosed);
+                menuIcon.setAttribute('data-lucide', isClosed ? 'x' : 'menu');
+                lucide.createIcons();
+            });
+
+            document.querySelectorAll('.logout-trigger').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    localStorage.removeItem('currentUser');
+                    window.location.href = 'index.html';
+                });
+            });
+
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <style>
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+        .resume-card:hover {
+            transform: translateY(-4px);
+            transition: all 0.3s ease;
+        }
+        .upload-btn:hover {
+            transform: translateY(-4px);
+            transition: all 0.3s ease;
+        }
+        .footer-link {
+            position: relative;
+        }
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #60a5fa;
+            transition: width 0.3s ease;
+        }
+        .footer-link:hover::after {
+            width: 100%;
+        }
+        .resume-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1.5rem;
+        }
+        @media (min-width: 640px) {
+            .resume-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 2rem;
+            }
+        }
+        @media (min-width: 1024px) {
+            .resume-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 2rem;
+            }
+        }
+        .action-btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+        .action-btn-group .upload-btn {
+            flex: 0 0 auto;
+            width: 100%;
+            max-width: 200px;
+        }
+        @media (min-width: 640px) {
+            .action-btn-group .upload-btn {
+                max-width: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- API Error Modal -->
+    <div id="apiErrorModal" style="display:none;" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <div class="flex items-start gap-4">
+                <div class="p-2 bg-red-100 rounded-full">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-red-600 mb-2">API Configuration Error</h3>
+                    <p class="text-sm text-gray-600 mb-2">There was an error with the API configuration:</p>
+                    <p id="currentApiKeyDisplay" class="text-sm font-mono bg-gray-100 p-2 rounded mb-3"></p>
+                    <p class="text-sm text-gray-600 mb-4">Please make sure the server is running and properly configured.</p>
+                    <button onclick="document.getElementById('apiErrorModal').style.display='none'" 
+                            class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div id="navbar"></div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Mobile Welcome -->
+        <div class="block sm:hidden mb-6">
+            <p class="text-sm text-slate-600">Welcome back, <span id="mobileUserName" class="font-semibold text-indigo-600"></span></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-btn-group">
+            <!-- Create Resume Button -->
+            <button onclick="openCreateModal()" 
+                    class="upload-btn h-48 flex flex-col items-center justify-center rounded-xl gap-3 text-slate-600 border-2 border-dashed border-slate-300 hover:border-indigo-500 hover:shadow-xl transition-all bg-white hover:bg-indigo-50/50">
+                <i data-lucide="plus" class="size-12 p-3 bg-gradient-to-br from-indigo-400 to-indigo-600 text-white rounded-full shadow-md"></i>
+                <div class="text-center">
+                    <p class="text-sm font-semibold text-slate-700">Create Resume</p>
+                    <p class="text-xs text-slate-400">Start from scratch</p>
+                </div>
+            </button>
+
+            <!-- Upload Resume Button -->
+            <input type="file" id="resumeUpload" accept=".pdf" hidden onchange="uploadResume(event)">
+            <button onclick="document.getElementById('resumeUpload').click()"
+                    class="upload-btn h-48 flex flex-col items-center justify-center rounded-xl gap-3 text-slate-600 border-2 border-dashed border-slate-300 hover:border-purple-500 hover:shadow-xl transition-all bg-white hover:bg-purple-50/50">
+                <i data-lucide="upload-cloud" class="size-12 p-3 bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-full shadow-md"></i>
+                <div class="text-center">
+                    <p class="text-sm font-semibold text-slate-700">Upload Existing</p>
+                    <p class="text-xs text-slate-400">PDF only</p>
+                </div>
+            </button>
+        </div>
+
+        <!-- Resume Grid -->
+        <div id="resumeContainer" class="resume-grid"></div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="createResumeModal" style="display:none;" class="fixed inset-0 modal-overlay flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 shadow-2xl">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="p-2 bg-indigo-100 rounded-lg">
+                    <i data-lucide="file-text" class="w-5 h-5 text-indigo-600"></i>
+                </div>
+                <h3 id="modalTitle" class="text-lg font-semibold text-slate-800">Create Resume</h3>
+            </div>
+            <form onsubmit="handleSubmit(event)">
+                <label class="text-sm font-medium text-slate-700 mb-1 block">Resume Title</label>
+                <input type="text" id="createTitle" placeholder="e.g., Software Developer Resume" 
+                       class="w-full border border-slate-300 rounded-lg px-4 py-2.5 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                <div class="flex gap-2">
+                    <button type="submit" 
+                            class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition font-medium">
+                        Create Resume
+                    </button>
+                    <button type="button" onclick="toggleModal('createResumeModal', false)" 
+                            class="flex-1 bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg hover:bg-slate-300 transition font-medium">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 border-t border-slate-800 w-full mt-16">
+        <!-- Main Footer Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            
+            <!-- Footer Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+                
+                <!-- Column 1: Brand & Description -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                        </div>
+                        <span class="font-black text-white text-xl">Resume<span class="text-blue-400">Matrix</span></span>
+                    </div>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-xs">
+                        Build professional, ATS-optimized resumes instantly. 100% client-side, no data storage, complete privacy.
+                    </p>
+                    <div class="flex gap-3 pt-2">
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors">
+                            <i data-lucide="github" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="text-slate-500 hover:text-white transition-colors">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Column 2: Product Links -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Product</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Features</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Templates</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Pricing</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Changelog</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Roadmap</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 3: Support Links -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Support</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">API Reference</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Community</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Status</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Column 4: Company Info & Newsletter -->
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Company</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">About</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Careers</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Blog</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Press Kit</a></li>
+                        <li><a href="#" class="footer-link hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                    
+                    <!-- Newsletter Signup -->
+                    <div class="mt-6">
+                        <p class="text-sm text-slate-400 mb-2">Subscribe to updates</p>
+                        <div class="flex">
+                            <input type="email" placeholder="Email address" 
+                                   class="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-l-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+                            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg text-sm font-medium transition-colors">
+                                <i data-lucide="send" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Footer Bottom Bar -->
+            <div class="mt-16 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+                
+                <div class="text-sm text-slate-500">
+                    &copy; 2026 Resume Matrix. All rights reserved.
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-6 text-sm">
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="text-slate-500 hover:text-white transition-colors">Cookie Policy</a>
+                    <div class="flex items-center gap-2 text-slate-500">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+                        <span class="text-xs">Secure & Private</span>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </footer>
+
+    <script>
+        // =====================================================
+        // 1. USER SESSION FUNCTIONS
+        // =====================================================
+        function getUserSession() {
+            try {
+                let session = localStorage.getItem('currentUser');
+                if (session) {
+                    const parsed = JSON.parse(session);
+                    if (parsed && parsed.name) {
+                        return parsed;
+                    }
+                }
+
+                session = localStorage.getItem('userSession');
+                if (session) {
+                    const parsed = JSON.parse(session);
+                    if (parsed && parsed.name) {
+                        return parsed;
+                    }
+                }
+
+                const allUsers = JSON.parse(localStorage.getItem('allUsers')) || {};
+                const userEmails = Object.keys(allUsers);
+                if (userEmails.length > 0) {
+                    const firstUser = allUsers[userEmails[0]];
+                    if (firstUser && firstUser.name) {
+                        return {
+                            name: firstUser.name,
+                            email: firstUser.email,
+                            ...firstUser
+                        };
+                    }
+                }
+            } catch (e) {
+                console.error("Error parsing user session:", e);
+            }
+
+            const defaultUser = {
+                name: "John Doe",
+                email: "john.doe@example.com",
+                gender: "Male",
+                phone: "+1 555-123-4567",
+                userId: 'user_' + Date.now()
+            };
+            localStorage.setItem('currentUser', JSON.stringify(defaultUser));
+            return defaultUser;
+        }
+
+        // =====================================================
+        // 2. INITIALIZE USER SESSION
+        // =====================================================
+        const userSession = getUserSession();
+        const userName = userSession.name || "Guest";
+        const userEmail = userSession.email || "";
+        const userId = userSession.userId || 'user_' + Date.now();
+        const userProfile = userSession.profile || "";
+
+        // =====================================================
+        // 3. SERVER CONFIGURATION
+        // =====================================================
+        const SERVER_URL = 'http://localhost:3000';
+
+        // =====================================================
+        // 4. NAVBAR
+        // =====================================================
+        const navbar = `
+        <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                           <a href="index.html" class="flex items-center gap-3 group cursor-pointer min-w-max">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+                    <i data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </div>
+                <span class="font-black text-slate-900 tracking-tight text-lg sm:text-xl">Resume<span class="text-blue-600 group-hover:text-indigo-600 transition-colors duration-300">Matrix</span></span>
+            </a>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-slate-600 hidden sm:block">
+                        Welcome, ${userName}
+                    </span>
+
+                    <a href="profile.html" class="cursor-pointer hover:ring-2 hover:ring-indigo-300 rounded-full transition-all">
+                        ${userProfile ? 
+                            `<img src="${userProfile}" alt="${userName}" class="size-9 rounded-full border-2 border-indigo-200 object-cover hover:border-indigo-400 transition-colors">` :
+                            `<div class="size-9 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 border border-indigo-300 flex items-center justify-center text-indigo-700 font-bold hover:scale-105 transition-transform">
+                                ${userName.charAt(0).toUpperCase()}
+                            </div>`
+                        }
+                    </a>
+                </div>
+            </div>
+        </nav>
+        `;
+        document.getElementById("navbar").innerHTML = navbar;
+        document.getElementById("mobileUserName").textContent = userName;
+
+        // =====================================================
+        // 5. MODAL FUNCTIONS
+        // =====================================================
+        function toggleModal(id, show) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.style.display = show ? 'flex' : 'none';
+            }
+        }
+
+        function showApiError(reason) {
+            document.getElementById('apiErrorModal').style.display = 'flex';
+            document.getElementById('currentApiKeyDisplay').textContent = reason || 'Server error';
+        }
+
+        // =====================================================
+        // 6. RESUME DATA MANAGEMENT
+        // =====================================================
+        let allResumes = JSON.parse(localStorage.getItem('myResumes')) || [];
+        let userResumes = allResumes.filter(resume => {
+            const resumeUserId = resume.userId || '';
+            const resumeEmail = resume.personal_info?.email || resume.userEmail || '';
+            return resumeUserId === userId || resumeEmail === userEmail;
+        });
+        let editId = null;
+        let mode = "";
+
+        // =====================================================
+        // 7. CREATE/EDIT RESUME FUNCTIONS
+        // =====================================================
+        function openCreateModal() {
+            mode = "create";
+            editId = null;
+            document.getElementById("modalTitle").innerText = "Create New Resume";
+            document.getElementById("createTitle").value = "";
+            toggleModal("createResumeModal", true);
+        }
+
+        function openEditModal(id) {
+            mode = "edit";
+            editId = id;
+            const resume = userResumes.find(r => r._id == id);
+            if (resume) {
+                document.getElementById("modalTitle").innerText = "Rename Resume";
+                document.getElementById("createTitle").value = resume.title;
+                toggleModal("createResumeModal", true);
+            }
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            const title = document.getElementById("createTitle").value.trim();
+            if (!title) return;
+
+            if (mode === "create") {
+                const newResume = {
+                    _id: Date.now(),
+                    title: title,
+                    userId: userId,
+                    userEmail: userEmail,
+                    createdAt: new Date().toISOString(),
+                    personal_info: {
+                        name: userSession.name || "",
+                        email: userEmail,
+                        phone: userSession.phone || "",
+                        profession: ""
+                    },
+                    experience: [],
+                    education: [],
+                    skills: []
+                };
+                allResumes.push(newResume);
+                localStorage.setItem("myResumes", JSON.stringify(allResumes));
+                userResumes.push(newResume);
+                window.location.href = `builder.html?id=${newResume._id}`;
+            } else {
+                allResumes = allResumes.map(r =>
+                    r._id == editId ? { ...r, title } : r
+                );
+                localStorage.setItem("myResumes", JSON.stringify(allResumes));
+                userResumes = userResumes.map(r =>
+                    r._id == editId ? { ...r, title } : r
+                );
+                renderResumes();
+                toggleModal("createResumeModal", false);
+            }
+        }
+
+        function deleteResume(id) {
+            if (!confirm("Delete this resume?")) return;
+            allResumes = allResumes.filter(r => r._id != id);
+            userResumes = userResumes.filter(r => r._id != id);
+            localStorage.setItem("myResumes", JSON.stringify(allResumes));
+            renderResumes();
+        }
+
+        // =====================================================
+        // 8. RENDER RESUMES
+        // =====================================================
+        const colors = ["#9333ea", "#d97706", "#dc2626", "#0284c7", "#16a34a"];
+
+        function renderResumes() {
+            const container = document.getElementById("resumeContainer");
+            
+            if (userResumes.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full w-full text-center py-16">
+                        <div class="flex flex-col items-center gap-4">
+                            <div class="p-6 bg-slate-100 rounded-full">
+                                <i data-lucide="file-text" class="w-16 h-16 text-slate-300"></i>
+                            </div>
+                            <div>
+                                <p class="text-slate-500 font-medium text-lg">No resumes yet</p>
+                                <p class="text-slate-400 text-sm mt-1">Create a new resume or upload an existing one to get started</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = userResumes.map((res, i) => {
+                const color = colors[i % colors.length];
+                return `
+                <div onclick="window.location.href='builder.html?id=${res._id}'"
+                     class="resume-card relative w-full aspect-[4/5] rounded-xl flex flex-col items-center justify-center cursor-pointer border-2 transition-all hover:shadow-xl bg-white"
+                     style="background:${color}08;border-color:${color}40;">
+                    <div class="absolute top-3 right-3 flex gap-1.5" onclick="event.stopPropagation()">
+                        <button onclick="openEditModal(${res._id})"
+                                class="p-1.5 rounded-lg bg-white/90 hover:bg-white shadow-sm hover:shadow transition-all">
+                            <i data-lucide="pencil" class="w-3.5 h-3.5" style="color:${color}"></i>
+                        </button>
+                        <button onclick="deleteResume(${res._id})"
+                                class="p-1.5 rounded-lg bg-white/90 hover:bg-white shadow-sm hover:shadow transition-all">
+                            <i data-lucide="trash" class="w-3.5 h-3.5 text-red-500"></i>
+                        </button>
+                    </div>
+                    <div class="p-3.5 rounded-full shadow-sm" style="background:${color}20;">
+                        <i data-lucide="file-text" class="w-9 h-9" style="color:${color}"></i>
+                    </div>
+                    <p class="mt-4 text-sm font-semibold text-center px-3 truncate w-full" style="color:${color}">
+                        ${res.title}
+                    </p>
+                    <p class="text-[10px] text-slate-400 mt-1.5">
+                        ${new Date(res.createdAt || Date.now()).toLocaleDateString()}
+                    </p>
+                </div>
+                `;
+            }).join("");
+
+            lucide.createIcons();
+        }
+
+        // =====================================================
+        // 9. UPLOAD RESUME FUNCTION (USES SERVER)
+        // =====================================================
+        async function checkServerHealth() {
+            try {
+                const response = await fetch(`${SERVER_URL}/api/health`);
+                if (!response.ok) {
+                    throw new Error('Server not responding');
+                }
+                return true;
+            } catch (error) {
+                console.error('Server health check failed:', error);
+                showApiError('Server is not running. Please start the server with: node server.js');
+                return false;
+            }
+        }
+
+        async function uploadResume(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check if server is running
+            const isHealthy = await checkServerHealth();
+            if (!isHealthy) {
+                event.target.value = '';
+                return;
+            }
+
+            // Show loading state
+            const uploadBtn = document.querySelector('[onclick="document.getElementById(\'resumeUpload\').click()"]');
+            const originalText = uploadBtn.innerHTML;
+            uploadBtn.innerHTML = `
+                <div class="flex flex-col items-center gap-2">
+                    <div class="spinner rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                    <p class="text-sm">Processing...</p>
+                </div>
+            `;
+            uploadBtn.disabled = true;
+
+            try {
+                // Extract text from PDF (client-side)
+                const text = await extractPdfText(file);
+                
+                if (!text || text.trim().length === 0) {
+                    throw new Error("No text could be extracted from the PDF. Please make sure it's a text-based PDF.");
+                }
+
+                // Send to server for AI parsing
+                const response = await fetch(`${SERVER_URL}/api/parse-resume`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ resumeText: text })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to parse resume');
+                }
+
+                const aiResume = await response.json();
+
+                // Create new resume from AI data
+                const newResume = {
+                    _id: Date.now(),
+                    title: aiResume.personal_info?.name || "Uploaded Resume",
+                    userId: userId,
+                    userEmail: userEmail,
+                    createdAt: new Date().toISOString(),
+                    personal_info: {
+                        name: aiResume.personal_info?.name || userSession.name || "",
+                        email: aiResume.personal_info?.email || userEmail,
+                        phone: aiResume.personal_info?.phone || userSession.phone || "",
+                        profession: aiResume.personal_info?.profession || "",
+                        location: aiResume.personal_info?.location || "",
+                        linkedin: aiResume.personal_info?.linkedin || "",
+                        github: aiResume.personal_info?.github || "",
+                        website: aiResume.personal_info?.website || ""
+                    },
+                    professional_summary: aiResume.professional_summary || "",
+                    experience: aiResume.experience || [],
+                    education: aiResume.education || [],
+                    skills: aiResume.skills || [],
+                    project: aiResume.project || []
+                };
+
+                allResumes.push(newResume);
+                localStorage.setItem("myResumes", JSON.stringify(allResumes));
+                userResumes.push(newResume);
+
+                window.location.href = `builder.html?id=${newResume._id}`;
+
+            } catch (error) {
+                console.error("Error uploading resume:", error);
+                alert(`Failed to upload resume: ${error.message}`);
+            } finally {
+                // Restore button
+                uploadBtn.innerHTML = originalText;
+                uploadBtn.disabled = false;
+                event.target.value = '';
+            }
+        }
+
+        // =====================================================
+        // 10. PDF EXTRACTION (CLIENT-SIDE)
+        // =====================================================
+        async function extractPdfText(file) {
+            const data = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data }).promise;
+            let text = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(item => item.str).join(" ");
+                text += "\n";
+            }
+            return text;
+        }
+
+        // =====================================================
+        // 11. INITIALIZE
+        // =====================================================
+        renderResumes();
+        lucide.createIcons();
+
+        console.log("✅ Dashboard initialized");
+        console.log(`👤 User: ${userName}`);
+        console.log(`📄 Resumes: ${userResumes.length}`);
+        console.log(`🌐 Server: ${SERVER_URL}`);
+    </script>
+</body>
+</html>

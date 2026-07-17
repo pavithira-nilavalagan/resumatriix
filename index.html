@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en" class="overflow-x-hidden scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ResuMatrix - Create and Build Resumes Online</title>
+  <link rel="icon" type="image/png" href="image/resumatrix.png">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @keyframes gradient-bg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .animate-gradient {
+      background-size: 200% 200%;
+      animation: gradient-bg 6s ease infinite;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between selection:bg-blue-500 selection:text-white antialiased overflow-x-hidden">
+
+  <!-- STICKY HEADER -->
+  <header class="bg-white/70 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-50 transition-all duration-300 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo Target -->
+      <div class="flex items-center gap-3 group cursor-pointer min-w-max">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200 group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+          <i data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+        </div>
+        <span class="font-black text-slate-900 tracking-tight text-lg sm:text-xl">Resume<span class="text-blue-600 group-hover:text-indigo-600 transition-colors duration-300">Matrix</span></span>
+      </div>
+
+      <!-- DESKTOP ACTIONS (Hidden on Mobile) -->
+      <nav id="desktop-nav-actions" class="hidden sm:flex items-center gap-3 sm:gap-6">
+        <!-- Script dynamically updates desktop items -->
+      </nav>
+
+      <!-- MOBILE HAMBURGER BUTTON (Hidden on Desktop) -->
+      <div class="flex sm:hidden">
+        <button id="mobile-menu-toggle" class="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 rounded-xl border border-slate-200/60 transition-all cursor-pointer">
+          <i id="menu-icon" data-lucide="menu" class="w-5 h-5 transition-transform duration-200"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- MOBILE DROPDOWN CONTAINER -->
+    <div id="mobile-drawer" class="hidden sm:hidden border-b border-slate-200/80 bg-white w-full shadow-inner transform transition-all duration-300 origin-top">
+      <div id="mobile-nav-actions" class="p-4 space-y-3.5">
+        <!-- Script dynamically updates mobile drawer items -->
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 w-full max-w-full">
+    
+    <!-- HERO SECTION -->
+ <!-- HERO SECTION - ALTERNATIVE DESIGN 3 -->
+<section class="relative bg-white w-full overflow-hidden px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto py-16 sm:py-24 lg:py-32">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      
+      <!-- Left Content -->
+      <div class="space-y-6">
+        <div class="flex items-center gap-2 text-sm font-medium text-blue-600">
+          <span class="w-8 h-0.5 bg-blue-600"></span>
+          Professional Resume Matrix
+        </div>
+        
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight">
+          Stand Out from
+          <span class="text-blue-600">the Crowd</span>
+        </h1>
+        
+        <p class="text-lg text-slate-600 leading-relaxed">
+          Create a resume that showcases your skills and experience with our 
+          modern templates. No design skills needed.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4">
+          <a href="signup.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-blue-200">
+            Start Creating
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+          </a>
+          <a href="dashboard.html" class="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-slate-200 hover:border-blue-300 text-slate-700 font-semibold rounded-xl transition-colors">
+            <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+            Browse Templates
+          </a>
+        </div>
+        
+        <!-- Feature Pills -->
+        <div class="flex flex-wrap gap-3 pt-4">
+          <span class="text-xs font-medium px-4 py-2 bg-blue-50 text-blue-700 rounded-full border border-blue-100">6 Templates</span>
+          <span class="text-xs font-medium px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">ATS Optimized</span>
+          <span class="text-xs font-medium px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">PDF Export</span>
+          <span class="text-xs font-medium px-4 py-2 bg-purple-50 text-purple-700 rounded-full border border-purple-100">Live Preview</span>
+        </div>
+      </div>
+      
+      <!-- Right Visual -->
+      <div class="relative grid grid-cols-2 gap-4">
+        
+        <div class="space-y-4">
+          <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
+            <i data-lucide="file-text" class="w-8 h-8 mb-3"></i>
+            <div class="text-2xl font-bold">6</div>
+            <div class="text-sm opacity-90">Templates</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md">
+            <i data-lucide="zap" class="w-8 h-8 text-amber-500 mb-3"></i>
+            <div class="text-xl font-bold text-slate-900">Real-time</div>
+            <div class="text-sm text-slate-500">Preview</div>
+          </div>
+        </div>
+        
+        <div class="space-y-4 mt-8">
+          <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-md">
+            <i data-lucide="shield" class="w-8 h-8 text-emerald-500 mb-3"></i>
+            <div class="text-xl font-bold text-slate-900">100%</div>
+            <div class="text-sm text-slate-500">Private</div>
+          </div>
+          <div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 text-white shadow-xl">
+            <i data-lucide="download" class="w-8 h-8 mb-3"></i>
+            <div class="text-2xl font-bold">PDF</div>
+            <div class="text-sm opacity-90">Export</div>
+          </div>
+        </div>
+        
+        <!-- Floating Badge -->
+        <div class="absolute -top-2 -right-2 bg-amber-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-full shadow-lg">
+          ⚡ Free
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</section>
+
+
+<!-- STATS SECTION - ALTERNATIVE DESIGN 3 -->
+<section class="py-16 sm:py-20 bg-white w-full px-4 sm:px-6 lg:px-8 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Stats Grid - With Icons and Descriptions -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      
+      <!-- Stat 1 -->
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-2xl font-extrabold text-slate-900">0ms</div>
+          <div class="text-xs font-bold text-blue-600 uppercase tracking-wider">Server Latency</div>
+          <p class="text-xs text-slate-500 mt-1">Local processing</p>
+        </div>
+      </div>
+
+      <!-- Stat 2 -->
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white flex items-center justify-center">
+          <i data-lucide="shield" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-2xl font-extrabold text-slate-900">100%</div>
+          <div class="text-xs font-bold text-purple-600 uppercase tracking-wider">Data Privacy</div>
+          <p class="text-xs text-slate-500 mt-1">Your data stays yours</p>
+        </div>
+      </div>
+
+      <!-- Stat 3 -->
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center">
+          <i data-lucide="file-check" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-2xl font-extrabold text-slate-900">ATS+</div>
+          <div class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Parser Compliant</div>
+          <p class="text-xs text-slate-500 mt-1">Recruiter-friendly</p>
+        </div>
+      </div>
+
+      <!-- Stat 4 -->
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 text-white flex items-center justify-center">
+          <i data-lucide="printer" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="text-2xl font-extrabold text-slate-900">Real-time</div>
+          <div class="text-xs font-bold text-orange-600 uppercase tracking-wider">PDF Rendering</div>
+          <p class="text-xs text-slate-500 mt-1">Instant downloads</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+ 
+<!-- Add this Template Showcase Section after the Pricing Matrix Section and before the 3-Step Architecture Section -->
+<!-- Insert this section where you want the template showcase to appear -->
+
+<!-- TEMPLATE SHOWCASE SECTION -->
+<section class="py-16 sm:py-24 bg-white w-full px-4 sm:px-6 lg:px-8 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto space-y-12">
+    
+    <!-- Header -->
+    <div class="text-center space-y-3">
+      <div class="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-[10px] font-bold uppercase tracking-widest">
+        Professional Templates
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">Choose Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Signature Style</span></h2>
+      <p class="text-slate-500 max-w-lg mx-auto">Three meticulously crafted template architectures, each optimized for different professional contexts and industry standards.</p>
+    </div>
+
+    <!-- Template Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Template 1: Classic -->
+      <div class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-indigo-300 transition-all duration-300">
+        <div class="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 p-4 border-b border-slate-200 overflow-hidden">
+          <!-- Classic Template Mini Preview -->
+          <div class="bg-white rounded-lg shadow-sm p-3 h-full">
+            <div class="flex items-center justify-between mb-2">
+              <div class="w-16 h-3 bg-slate-900 rounded"></div>
+              <div class="w-10 h-2 bg-slate-400 rounded"></div>
+            </div>
+            <div class="border-b border-slate-200 pb-2 mb-2">
+              <div class="w-24 h-1.5 bg-indigo-600 rounded"></div>
+              <div class="w-20 h-1.5 bg-slate-300 rounded mt-1"></div>
+            </div>
+            <div class="space-y-1.5">
+              <div class="w-full h-1.5 bg-slate-200 rounded"></div>
+              <div class="w-5/6 h-1.5 bg-slate-200 rounded"></div>
+              <div class="w-4/6 h-1.5 bg-slate-200 rounded"></div>
+            </div>
+          </div>
+          <div class="absolute top-2 right-2 bg-indigo-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-full">POPULAR</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-slate-900 text-lg">Classic Professional</h3>
+          <p class="text-sm text-slate-500 mt-1 leading-relaxed">A timeless, structured layout with clear hierarchy. Perfect for corporate, finance and traditional industries.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-slate-500">
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> ATS Optimized</span>
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> Chronological</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template 2: Modern Developer -->
+      <div class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-purple-300 transition-all duration-300">
+        <div class="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 p-4 border-b border-slate-200 overflow-hidden">
+          <!-- Modern Developer Template Mini Preview -->
+          <div class="bg-white rounded-lg shadow-sm p-3 h-full">
+            <div class="flex items-start justify-between mb-2">
+              <div>
+                <div class="w-16 h-3 bg-slate-900 rounded"></div>
+                <div class="w-20 h-1.5 bg-purple-600 rounded mt-1"></div>
+              </div>
+              <div class="flex gap-1">
+                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+                <div class="w-2 h-2 rounded-full bg-slate-300"></div>
+              </div>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mt-3">
+              <div class="col-span-3 space-y-1.5">
+                <div class="w-full h-1.5 bg-slate-200 rounded"></div>
+                <div class="w-5/6 h-1.5 bg-slate-200 rounded"></div>
+                <div class="w-4/6 h-1.5 bg-slate-200 rounded"></div>
+              </div>
+              <div class="col-span-1 space-y-1">
+                <div class="w-full h-1.5 bg-slate-200 rounded"></div>
+                <div class="w-full h-1.5 bg-slate-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+          <div class="absolute top-2 right-2 bg-purple-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-full">TECH</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-slate-900 text-lg">Modern Developer</h3>
+          <p class="text-sm text-slate-500 mt-1 leading-relaxed">Sleek, asymmetric layout with skills-first emphasis. Designed for tech, engineering and creative fields.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-slate-500">
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> Skills-First</span>
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> Modern Typography</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template 3: Minimal -->
+      <div class="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-emerald-300 transition-all duration-300">
+        <div class="relative h-48 bg-gradient-to-br from-slate-50 to-slate-100 p-4 border-b border-slate-200 overflow-hidden">
+          <!-- Minimal Template Mini Preview -->
+          <div class="bg-white rounded-lg shadow-sm p-3 h-full">
+            <div class="flex items-center justify-center mb-2">
+              <div class="w-20 h-3 bg-slate-900 rounded"></div>
+            </div>
+            <div class="flex justify-center gap-6 text-center">
+              <div>
+                <div class="w-6 h-1.5 bg-slate-300 rounded mx-auto"></div>
+                <div class="w-8 h-1.5 bg-slate-200 rounded mt-1 mx-auto"></div>
+              </div>
+              <div>
+                <div class="w-6 h-1.5 bg-slate-300 rounded mx-auto"></div>
+                <div class="w-8 h-1.5 bg-slate-200 rounded mt-1 mx-auto"></div>
+              </div>
+            </div>
+            <div class="space-y-1.5 mt-3">
+              <div class="w-full h-1.5 bg-slate-200 rounded"></div>
+              <div class="w-5/6 h-1.5 bg-slate-200 rounded"></div>
+              <div class="w-4/6 h-1.5 bg-slate-200 rounded"></div>
+            </div>
+          </div>
+          <div class="absolute top-2 right-2 bg-emerald-600 text-white text-[8px] font-bold px-2 py-0.5 rounded-full">CLEAN</div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-bold text-slate-900 text-lg">Minimalist</h3>
+          <p class="text-sm text-slate-500 mt-1 leading-relaxed">Clean, whitespace-focused design with maximum readability. Ideal for design, consulting and executive roles.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-slate-500">
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> High Readability</span>
+            <span class="flex items-center gap-1"><i data-lucide="check" class="w-3 h-3 text-emerald-500"></i> Distraction-Free</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CTA Link to Builder -->
+    <div class="text-center pt-4">
+      <a href="dashboard.html" class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 transition-all duration-300">
+        Explore All Templates
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+ <!-- PRICING MATRIX SECTION -->
+
+
+<!-- Add this Attractive How It Works Section after the Template Showcase Section -->
+<!-- This section features a modern, visually-rich design with animated elements -->
+
+<!-- HOW IT WORKS - ATTRACTIVE DESIGN SECTION -->
+<section class="py-16 sm:py-24 bg-white w-full px-4 sm:px-6 lg:px-8 overflow-hidden relative">
+  
+  <!-- Decorative Background Elements -->
+  <div class="absolute top-0 right-0 w-96 h-96 bg-indigo-100/30 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 left-0 w-96 h-96 bg-purple-100/30 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-50/20 rounded-full blur-2xl pointer-events-none"></div>
+  
+  <div class="max-w-7xl mx-auto relative z-10">
+    
+    <!-- Header with animated gradient -->
+    <div class="text-center space-y-4 mb-16">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 rounded-full text-[10px] font-bold text-indigo-700 uppercase tracking-widest shadow-sm">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+        </span>
+        Simple 3-Step Process
+      </div>
+      <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        Build Your Resume in
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 animate-gradient" style="background-size: 200% 200%;">
+          3 Simple Steps
+        </span>
+      </h2>
+      <p class="text-slate-500 max-w-2xl mx-auto text-lg">
+        No complicated interfaces. Just pure, distraction-free resume building with real-time feedback.
+      </p>
+    </div>
+
+    <!-- Steps with Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      
+      <!-- Step 1 -->
+      <div class="group relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl opacity-0  transition-opacity duration-500 blur-xl"></div>
+        <div class="relative bg-white rounded-2xl border border-slate-200 p-8  transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-2">
+          
+          <!-- Step Number with animated background -->
+          <div class="absolute -top-4 -left-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-blue-200 group-hover:scale-110  transition-all duration-300">
+              01
+            </div>
+          </div>
+          
+          <!-- Icon -->
+          <div class="flex justify-center mb-6 mt-2">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center group-hover:scale-110  transition-all duration-300 border border-blue-100">
+              <i data-lucide="user-plus" class="w-10 h-10"></i>
+            </div>
+          </div>
+          
+          <h3 class="text-xl font-bold text-slate-900 text-center mb-3">Enter Your Profile</h3>
+          <p class="text-slate-500 text-center text-sm leading-relaxed">
+            Fill in your personal details, professional summary, and contact information. Everything syncs instantly.
+          </p>
+          
+          <!-- Feature tags -->
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <span class="text-[10px] font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">Personal Info</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">Summary</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">Contact</span>
+          </div>
+          
+          <!-- Animated progress bar -->
+          <div class="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full w-1/3 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="group relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl opacity-0  transition-opacity duration-500 blur-xl"></div>
+        <div class="relative bg-white rounded-2xl border border-slate-200 p-8  transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-2">
+          
+          <!-- Step Number -->
+          <div class="absolute -top-4 -left-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-indigo-200 group-hover:scale-110  transition-all duration-300">
+              02
+            </div>
+          </div>
+          
+          <!-- Icon -->
+          <div class="flex justify-center mb-6 mt-2">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 flex items-center justify-center group-hover:scale-110  transition-all duration-300 border border-indigo-100">
+              <i data-lucide="wand-2" class="w-10 h-10"></i>
+            </div>
+          </div>
+          
+          <h3 class="text-xl font-bold text-slate-900 text-center mb-3">Customize & Design</h3>
+          <p class="text-slate-500 text-center text-sm leading-relaxed">
+            Choose from multiple templates, pick your accent color, and arrange sections to match your professional story.
+          </p>
+          
+          <!-- Feature tags -->
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <span class="text-[10px] font-semibold px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">6 Templates</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">Color Picker</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">Live Preview</span>
+          </div>
+          
+          <!-- Animated progress bar -->
+          <div class="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full w-2/3 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="group relative">
+        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl opacity-0  transition-opacity duration-500 blur-xl"></div>
+        <div class="relative bg-white rounded-2xl border border-slate-200 p-8  transition-all duration-300 shadow-sm hover:shadow-xl hover:-translate-y-2">
+          
+          <!-- Step Number -->
+          <div class="absolute -top-4 -left-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-emerald-200 group-hover:scale-110  transition-all duration-300">
+              03
+            </div>
+          </div>
+          
+          <!-- Icon -->
+          <div class="flex justify-center mb-6 mt-2">
+            <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 text-emerald-600 flex items-center justify-center group-hover:scale-110  transition-all duration-300 border border-emerald-100">
+              <i data-lucide="file-check-2" class="w-10 h-10"></i>
+            </div>
+          </div>
+          
+          <h3 class="text-xl font-bold text-slate-900 text-center mb-3">Export & Share</h3>
+          <p class="text-slate-500 text-center text-sm leading-relaxed">
+            Download your polished resume as a print-ready PDF or generate a shareable public link for recruiters.
+          </p>
+          
+          <!-- Feature tags -->
+          <div class="mt-6 flex flex-wrap justify-center gap-2">
+            <span class="text-[10px] font-semibold px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">PDF Export</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">Public Link</span>
+            <span class="text-[10px] font-semibold px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">Private Mode</span>
+          </div>
+          
+          <!-- Animated progress bar -->
+          <div class="mt-6 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full w-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Connecting Flow Line (Desktop) -->
+    <div class="hidden lg:block relative mt-8">
+      <div class="absolute left-1/3 right-1/3 top-1/2 h-0.5 bg-gradient-to-r from-blue-200 via-indigo-200 to-emerald-200 -translate-y-1/2"></div>
+      
+    </div>
+
+    <!-- Feature Highlights with Icons -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16">
+      <div class="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-blue-100/50 px-4 py-3 rounded-xl border border-blue-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="w-8 h-8 rounded-lg bg-blue-500 text-white flex items-center justify-center">
+          <i data-lucide="zap" class="w-4 h-4"></i>
+        </div>
+        <span class="text-xs font-semibold text-slate-700">Real-time Sync</span>
+      </div>
+      
+      <div class="flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-indigo-100/50 px-4 py-3 rounded-xl border border-indigo-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center">
+          <i data-lucide="database" class="w-4 h-4"></i>
+        </div>
+        <span class="text-xs font-semibold text-slate-700">Local Storage</span>
+      </div>
+      
+      <div class="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-purple-100/50 px-4 py-3 rounded-xl border border-purple-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="w-8 h-8 rounded-lg bg-purple-500 text-white flex items-center justify-center">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </div>
+        <span class="text-xs font-semibold text-slate-700">100% Private</span>
+      </div>
+      
+      <div class="flex items-center gap-3 bg-gradient-to-r from-emerald-50 to-emerald-100/50 px-4 py-3 rounded-xl border border-emerald-200/50 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+        </div>
+        <span class="text-xs font-semibold text-slate-700">Print Ready</span>
+      </div>
+    </div>
+
+    <!-- CTA Button -->
+    <div class="text-center mt-12">
+      <a href="signup.html" class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg shadow-indigo-200 hover:shadow-xl hover:scale-105 transition-all duration-300 group">
+        <span>Start Building Your Resume Now</span>
+        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+      </a>
+      <p class="text-xs text-slate-400 mt-3">Sign-up required. Start instantly.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- Add this Testimonials Section after the How It Works Section -->
+<!-- TESTIMONIALS SECTION -->
+<section class="py-16 sm:py-24 bg-slate-50 w-full px-4 sm:px-6 lg:px-8 border-y border-slate-200">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center space-y-3 mb-16">
+      <div class="inline-block px-4 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-[10px] font-bold text-blue-700 uppercase tracking-widest">
+        User Testimonials
+      </div>
+      <h2 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+        What Our <span class="text-blue-600">Users Say</span>
+      </h2>
+      <p class="text-slate-500 max-w-2xl mx-auto text-lg">
+        Join thousands of professionals who have built their careers with our platform.
+      </p>
+    </div>
+
+    <!-- Testimonials Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Testimonial 1 -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-1 text-amber-400 mb-4">
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+        </div>
+        <blockquote class="text-slate-700 text-sm leading-relaxed mb-6 text-justify">
+          "This resume builder transformed my job search. I landed interviews at three Fortune 500 companies within two weeks. The templates are modern and ATS-friendly."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center font-bold text-lg">
+            JD
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">John Doe</h4>
+            <p class="text-xs text-slate-500">Senior Software Engineer</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-1 text-amber-400 mb-4">
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+        </div>
+        <blockquote class="text-slate-700 text-sm leading-relaxed mb-6 text-justify">
+          "The real-time preview feature is a game-changer. I could see exactly how my resume would look and make adjustments instantly. Highly recommend for any professional."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-lg">
+            SM
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Sarah Mitchell</h4>
+            <p class="text-xs text-slate-500">Product Manager</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center gap-1 text-amber-400 mb-4">
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+          <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+        </div>
+        <blockquote class="text-slate-700 text-sm leading-relaxed mb-6 text-justify">
+          "I've used multiple resume builders, but this one stands out. The clean design, multiple templates, and PDF export quality are unmatched. It helped me get my dream job."
+        </blockquote>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-lg">
+            AR
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 text-sm">Alex Rivera</h4>
+            <p class="text-xs text-slate-500">Marketing Director</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-12">
+      <div class="text-center bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <div class="text-2xl font-extrabold text-blue-600">10K+</div>
+        <div class="text-xs text-slate-500 font-medium">Resumes Built</div>
+      </div>
+      <div class="text-center bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <div class="text-2xl font-extrabold text-indigo-600">4.9★</div>
+        <div class="text-xs text-slate-500 font-medium">Average Rating</div>
+      </div>
+      <div class="text-center bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <div class="text-2xl font-extrabold text-purple-600">98%</div>
+        <div class="text-xs text-slate-500 font-medium">ATS Pass Rate</div>
+      </div>
+      <div class="text-center bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+        <div class="text-2xl font-extrabold text-emerald-600">50+</div>
+        <div class="text-xs text-slate-500 font-medium">Countries Used</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Add this FAQ Section after the Testimonials Section -->
+<!-- FAQ SECTION -->
+<section class="py-16 sm:py-24 bg-white w-full px-4 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Header -->
+    <div class="text-center space-y-3 mb-16">
+      <div class="inline-block px-4 py-1.5 bg-indigo-50 border border-indigo-200 rounded-full text-[10px] font-bold text-indigo-700 uppercase tracking-widest">
+        Frequently Asked Questions
+      </div>
+      <h2 class="text-4xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
+        Got <span class="text-indigo-600">Questions?</span>
+      </h2>
+      <p class="text-slate-500 max-w-2xl mx-auto text-lg">
+        Everything you need to know about building your professional resume with our platform.
+      </p>
+    </div>
+
+    <!-- FAQ Items -->
+    <div class="space-y-4">
+      
+      <!-- FAQ 1 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>Is my data secure and private?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            Absolutely! All your data is stored locally in your browser's localStorage. We never store, transmit, or have access to your personal information. Your resume data stays on your device only.
+          </div>
+        </details>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>Do I need to create an account?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            No account is required to build your resume. You can start creating immediately. However, creating a free account allows you to save multiple resumes and access your history across devices.
+          </div>
+        </details>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>What templates are available?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            We offer 6 professionally designed templates: Classic, Minimal, Compact, Overleaf Modern, Modern Developer, and Pro Resume. Each template is optimized for ATS systems and can be customized with your preferred accent color.
+          </div>
+        </details>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>Can I export my resume as PDF?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            Yes! You can download your resume as a print-ready PDF using the Download button. The PDF is formatted exactly as you see in the preview, maintaining all styling, colors, and layout.
+          </div>
+        </details>
+      </div>
+
+      <!-- FAQ 5 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>Is my resume ATS-friendly?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            All our templates are designed with ATS (Applicant Tracking Systems) in mind. They use clean, parseable layouts with proper semantic structure. You can also use the built-in ATS scanner to check your resume's compatibility.
+          </div>
+        </details>
+      </div>
+
+      <!-- FAQ 6 -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <details class="group">
+          <summary class="flex items-center justify-between w-full px-6 py-4 text-left text-slate-900 font-semibold cursor-pointer hover:bg-slate-50 transition-colors">
+            <span>Can I share my resume with others?</span>
+            <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 group-open:rotate-180 transition-transform"></i>
+          </summary>
+          <div class="px-6 pb-4 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4 text-justify">
+            Yes! You can toggle your resume to Public mode and generate a shareable link. This allows you to send your resume to recruiters or colleagues without requiring them to download a PDF file.
+          </div>
+        </details>
+      </div>
+
+    </div>
+
+    <!-- Additional Help -->
+    <div class="mt-12 text-center bg-slate-50 rounded-2xl border border-slate-200 p-8">
+      <p class="text-slate-600 text-sm">
+        Still have questions? 
+        <a href="#" class="text-blue-600 font-semibold hover:underline">Contact our support team</a>
+        and we'll get back to you within 24 hours.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+  </main>
+
+<!-- BIG FOOTER - Professional Multi-Column Footer -->
+<footer class="bg-slate-900 text-slate-300 border-t border-slate-800 w-full">
+  
+  <!-- Main Footer Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    
+    <!-- Footer Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+      
+      <!-- Column 1: Brand & Description -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+          </div>
+          <span class="font-black text-white text-xl">Resume<span class="text-blue-400">Matrix</span></span>
+        </div>
+        <p class="text-sm text-slate-400 leading-relaxed max-w-xs">
+          Build professional, ATS-optimized resumes instantly. 100% client-side, no data storage, complete privacy.
+        </p>
+        <div class="flex gap-3 pt-2">
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="twitter" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="linkedin" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="github" class="w-5 h-5"></i>
+          </a>
+          <a href="#" class="text-slate-500 hover:text-white transition-colors">
+            <i data-lucide="youtube" class="w-5 h-5"></i>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Column 2: Product Links -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Product</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Templates</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Changelog</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Roadmap</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 3: Support Links -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Support</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">API Reference</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Community</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Status</a></li>
+        </ul>
+      </div>
+      
+      <!-- Column 4: Company Info & Newsletter -->
+      <div>
+        <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Company</h4>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Press Kit</a></li>
+          <li><a href="#" class="hover:text-white transition-colors">Contact</a></li>
+        </ul>
+        
+        <!-- Newsletter Signup -->
+        <div class="mt-6">
+          <p class="text-sm text-slate-400 mb-2">Subscribe to updates</p>
+          <div class="flex">
+            <input type="email" placeholder="Email address" class="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-l-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500">
+            <button class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg text-sm font-medium transition-colors">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- Footer Bottom Bar -->
+    <div class="mt-16 pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4">
+      
+      <div class="text-sm text-slate-500">
+        &copy; 2026 Resume Matrix. All rights reserved.
+      </div>
+      
+      <div class="flex flex-wrap items-center gap-6 text-sm">
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Privacy Policy</a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Terms of Service</a>
+        <a href="#" class="text-slate-500 hover:text-white transition-colors">Cookie Policy</a>
+        <div class="flex items-center gap-2 text-slate-500">
+          <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500"></i>
+          <span class="text-xs">Secure & Private</span>
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</footer>
+
+  <!-- DYNAMIC NAVIGATION MOUNT & HAMBURGER TRANSITION CONTROL -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const userSession = JSON.parse(localStorage.getItem('currentUser'));
+      
+      const desktopNav = document.getElementById('desktop-nav-actions');
+      const mobileNav = document.getElementById('mobile-nav-actions');
+      const primaryCta = document.getElementById('hero-primary-cta');
+      
+      const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      const menuIcon = document.getElementById('menu-icon');
+
+      // 1. EVALUATE SECURITY CONTEXT SESSIONS
+      if (userSession) {
+        desktopNav.innerHTML = `
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-600 font-bold flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-lg border border-slate-200/40">
+              <a href="profile.html"><i data-lucide="user" class="w-3.5 h-3.5 text-blue-600"></i></a> ${userSession.name}
+            </span>
+            <a href="dashboard.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-102">
+              Go to Workspace
+            </a>
+            <button class="logout-trigger text-slate-400 hover:text-red-500 p-2 rounded-xl border border-slate-200/60 transition-all cursor-pointer bg-slate-50 flex items-center justify-center active:scale-95 shadow-2xs" title="Sign Out">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+
+        mobileNav.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex items-center gap-2.5 px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-200/60">
+              <a href="profile.html"><i data-lucide="user" class="w-4 h-4 text-blue-600 animate-pulse"></i></a>
+              <div class="text-xs font-bold text-slate-800">${userSession.name}</div>
+            </div>
+            <a href="index.html" class="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold py-3 rounded-xl shadow-xs active:scale-98 transition-transform">
+              <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> Open Active Workspace
+            </a>
+            <button class="logout-trigger flex items-center justify-center gap-2 w-full text-red-600 bg-red-50 hover:bg-red-100 text-xs font-bold py-3 rounded-xl border border-red-100 transition-all cursor-pointer active:scale-98">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Log Out Account
+            </button>
+          </div>
+        `;
+        
+        if (primaryCta) {
+          primaryCta.setAttribute('href', 'dashboard.html');
+          primaryCta.innerHTML = `Open Workspace Dashboard <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-200"></i>`;
+        }
+
+      } else {
+        desktopNav.innerHTML = `
+          <a href="signin.html" class="text-xs sm:text-sm text-slate-600 font-bold hover:text-slate-900 transition-colors">Sign In</a>
+          <a href="signup.html" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:opacity-95 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow-xs hover:scale-102">
+            Create Account
+          </a>
+        `;
+
+        mobileNav.innerHTML = `
+          <div class="grid grid-cols-2 gap-3">
+            <a href="signin.html" class="flex items-center justify-center border border-slate-200 text-slate-700 text-xs font-bold py-3 rounded-xl bg-slate-50 active:scale-95 transition-transform">Sign In</a>
+            <a href="signup.html" class="flex items-center justify-center bg-blue-600 text-white text-xs font-bold py-3 rounded-xl shadow-xs active:scale-95 transition-transform">Sign Up</a>
+          </div>
+        `;
+      }
+
+      // 2. TOGGLE INTERACTION LAYOUT DRAWER
+      mobileMenuToggle.addEventListener('click', () => {
+        const isClosed = mobileDrawer.classList.contains('hidden');
+        if (isClosed) {
+          mobileDrawer.classList.remove('hidden');
+          menuIcon.setAttribute('data-lucide', 'x');
+        } else {
+          mobileDrawer.classList.add('hidden');
+          menuIcon.setAttribute('data-lucide', 'menu');
+        }
+        lucide.createIcons();
+      });
+
+      // 3. SECURE TEARDOWN LOGOUT LOOPS
+      document.querySelectorAll('.logout-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+          localStorage.removeItem('currentUser');
+          window.location.reload();
+        });
+      });
+      
+      lucide.createIcons();
+    });
+  </script>
+</body>
+
+</html>

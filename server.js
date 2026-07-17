@@ -1,13 +1,14 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // =============================================
-// DEBUG: Check API Key
+// DEBUG: Check if API Key is Loaded
 // =============================================
 console.log('🔍 Checking environment variables...');
 console.log('🔑 GEMINI_API_KEY loaded:', process.env.GEMINI_API_KEY ? '✅ Yes' : '❌ No');
@@ -17,74 +18,21 @@ if (process.env.GEMINI_API_KEY) {
 }
 
 // =============================================
-// Load Gemini with proper error handling
+// Initialize Gemini
 // =============================================
 let genAI = null;
 let GeminiInitialized = false;
 
 try {
-    // Try different import methods
-    let GoogleGenerativeAI;
+    if (!process.env.GEMINI_API_KEY) {
+        throw new Error('GEMINI_API_KEY is not set in environment variables');
+    }
     
-    try {
-        // Method 1: Standard require
-        const geminiModule = require('@google/generative-ai');
-        GoogleGenerativeAI = geminiModule.GoogleGenerativeAI || geminiModule;
-        console.log('✅ Method 1: Loaded @google/generative-ai');
-    } catch (err1) {
-        console.log('⚠️ Method 1 failed:', err1.message);
-        
-        try {
-            // Method 2: Try the MCP package directly
-            const geminiModule = require('gemini-design-mcp');
-            // The MCP package might export differently
-            GoogleGenerativeAI = geminiModule.GoogleGenerativeAI || 
-                               geminiModule.default?.GoogleGenerativeAI || 
-                               geminiModule;
-            console.log('✅ Method 2: Loaded gemini-design-mcp');
-        } catch (err2) {
-            console.log('⚠️ Method 2 failed:', err2.message);
-            
-            try {
-                // Method 3: Try dynamic import
-                const importModule = async () => {
-                    const module = await import('@google/generative-ai');
-                    return module.GoogleGenerativeAI || module.default?.GoogleGenerativeAI || module;
-                };
-                // We'll handle this asynchronously
-                console.log('⏳ Method 3: Will use dynamic import');
-            } catch (err3) {
-                console.error('❌ All methods failed to load Gemini package');
-            }
-        }
-    }
-
-    // Initialize Gemini if we have the constructor
-    if (GoogleGenerativeAI) {
-        try {
-            genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            GeminiInitialized = true;
-            console.log('✅ Gemini API initialized successfully');
-        } catch (initError) {
-            console.error('❌ Failed to initialize Gemini:', initError.message);
-        }
-    } else {
-        console.log('⚠️ GoogleGenerativeAI constructor not available, trying alternative...');
-        
-        // Try using the MCP package directly
-        try {
-            const mcpModule = require('gemini-design-mcp');
-            if (mcpModule && typeof mcpModule === 'function') {
-                genAI = mcpModule(process.env.GEMINI_API_KEY);
-                GeminiInitialized = true;
-                console.log('✅ Gemini initialized via MCP package');
-            }
-        } catch (mcpError) {
-            console.error('❌ MCP initialization failed:', mcpError.message);
-        }
-    }
+    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    GeminiInitialized = true;
+    console.log('✅ Gemini API initialized successfully');
 } catch (error) {
-    console.error('❌ Failed to load Gemini package:', error.message);
+    console.error('❌ Failed to initialize Gemini API:', error.message);
 }
 
 // =============================================
@@ -157,7 +105,6 @@ app.get('/api/test-gemini', async (req, res) => {
             });
         }
 
-        // Test the Gemini connection
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
         const result = await model.generateContent("Say 'Hello, Gemini is working!'");
         const response = await result.response;
@@ -205,10 +152,7 @@ app.post('/api/parse-resume', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error in parse-resume:', error);
-        res.status(500).json({ 
-            error: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
+        res.status(500).json({ error: error.message });
     }
 });
 

@@ -3,18 +3,17 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "AI-powered resume builder with Gemini integration",
   "dependencies": {
-    "@google/generative-ai": "npm:mcpstore-gemini-design@^1.0.6",
+    "@google/generative-ai": "^0.21.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1",
+    "express": "^4.18.2",
     "multer": "^2.2.0",
     "pdf-parse": "^2.4.5"
   }

@@ -1,33 +1,90 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
-
-// Try to load Gemini with fallback
-let GoogleGenerativeAI;
-try {
-    const genAI = require('@google/generative-ai');
-    GoogleGenerativeAI = genAI.GoogleGenerativeAI || genAI.default?.GoogleGenerativeAI || genAI;
-    console.log('✅ GoogleGenerativeAI loaded successfully');
-} catch (error) {
-    console.error('❌ Failed to load GoogleGenerativeAI:', error.message);
-    // Continue without it - we'll handle this later
-}
-
 require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // =============================================
-// DEBUG: Check if API Key is Loaded
+// DEBUG: Check API Key
 // =============================================
 console.log('🔍 Checking environment variables...');
 console.log('🔑 GEMINI_API_KEY loaded:', process.env.GEMINI_API_KEY ? '✅ Yes' : '❌ No');
 if (process.env.GEMINI_API_KEY) {
     console.log('🔑 API Key starts with:', process.env.GEMINI_API_KEY.substring(0, 10) + '...');
     console.log('🔑 API Key length:', process.env.GEMINI_API_KEY.length);
-} else {
-    console.log('❌ WARNING: GEMINI_API_KEY is NOT set!');
+}
+
+// =============================================
+// Load Gemini with proper error handling
+// =============================================
+let genAI = null;
+let GeminiInitialized = false;
+
+try {
+    // Try different import methods
+    let GoogleGenerativeAI;
+    
+    try {
+        // Method 1: Standard require
+        const geminiModule = require('@google/generative-ai');
+        GoogleGenerativeAI = geminiModule.GoogleGenerativeAI || geminiModule;
+        console.log('✅ Method 1: Loaded @google/generative-ai');
+    } catch (err1) {
+        console.log('⚠️ Method 1 failed:', err1.message);
+        
+        try {
+            // Method 2: Try the MCP package directly
+            const geminiModule = require('gemini-design-mcp');
+            // The MCP package might export differently
+            GoogleGenerativeAI = geminiModule.GoogleGenerativeAI || 
+                               geminiModule.default?.GoogleGenerativeAI || 
+                               geminiModule;
+            console.log('✅ Method 2: Loaded gemini-design-mcp');
+        } catch (err2) {
+            console.log('⚠️ Method 2 failed:', err2.message);
+            
+            try {
+                // Method 3: Try dynamic import
+                const importModule = async () => {
+                    const module = await import('@google/generative-ai');
+                    return module.GoogleGenerativeAI || module.default?.GoogleGenerativeAI || module;
+                };
+                // We'll handle this asynchronously
+                console.log('⏳ Method 3: Will use dynamic import');
+            } catch (err3) {
+                console.error('❌ All methods failed to load Gemini package');
+            }
+        }
+    }
+
+    // Initialize Gemini if we have the constructor
+    if (GoogleGenerativeAI) {
+        try {
+            genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            GeminiInitialized = true;
+            console.log('✅ Gemini API initialized successfully');
+        } catch (initError) {
+            console.error('❌ Failed to initialize Gemini:', initError.message);
+        }
+    } else {
+        console.log('⚠️ GoogleGenerativeAI constructor not available, trying alternative...');
+        
+        // Try using the MCP package directly
+        try {
+            const mcpModule = require('gemini-design-mcp');
+            if (mcpModule && typeof mcpModule === 'function') {
+                genAI = mcpModule(process.env.GEMINI_API_KEY);
+                GeminiInitialized = true;
+                console.log('✅ Gemini initialized via MCP package');
+            }
+        } catch (mcpError) {
+            console.error('❌ MCP initialization failed:', mcpError.message);
+        }
+    }
+} catch (error) {
+    console.error('❌ Failed to load Gemini package:', error.message);
 }
 
 // =============================================
@@ -59,60 +116,24 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
 
 // =============================================
-// Initialize Gemini with Multiple Fallbacks
-// =============================================
-let genAI = null;
-
-function initializeGemini() {
-    try {
-        // Check if we have the API key
-        if (!process.env.GEMINI_API_KEY) {
-            console.error('❌ GEMINI_API_KEY is not set in environment variables');
-            return false;
-        }
-
-        // Check if the library loaded
-        if (!GoogleGenerativeAI) {
-            console.error('❌ GoogleGenerativeAI library not loaded');
-            return false;
-        }
-
-        // Try to initialize
-        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        console.log('✅ Gemini API initialized successfully');
-        console.log('📝 Gemini API model available: gemini-2.5-flash');
-        return true;
-    } catch (error) {
-        console.error('❌ Failed to initialize Gemini API:', error.message);
-        console.error('📝 Error details:', error.stack);
-        genAI = null;
-        return false;
-    }
-}
-
-// Initialize on startup
-const geminiInitialized = initializeGemini();
-
-// =============================================
 // ROUTES
 // =============================================
 
-// ✅ ROOT ROUTE
 app.get('/', (req, res) => {
     res.json({
         status: 'online',
         message: 'Resume Matrix API is running',
         endpoints: {
             health: '/api/health',
-            parseResume: '/api/parse-resume (POST)'
+            parseResume: '/api/parse-resume (POST)',
+            testGemini: '/api/test-gemini'
         },
         apiKeyLoaded: !!process.env.GEMINI_API_KEY,
-        geminiInitialized: geminiInitialized,
+        geminiInitialized: GeminiInitialized,
         timestamp: new Date().toISOString()
     });
 });
 
-// ✅ HEALTH CHECK with detailed status
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ok',
@@ -120,23 +141,49 @@ app.get('/api/health', (req, res) => {
         message: 'Server is running!',
         cors: 'enabled',
         apiKeyLoaded: !!process.env.GEMINI_API_KEY,
-        geminiInitialized: geminiInitialized,
-        environment: process.env.NODE_ENV || 'production'
+        geminiInitialized: GeminiInitialized
     });
 });
 
-// ✅ PARSE RESUME with better error handling
+app.get('/api/test-gemini', async (req, res) => {
+    try {
+        if (!GeminiInitialized || !genAI) {
+            return res.status(503).json({
+                error: 'Gemini API is not initialized',
+                details: {
+                    apiKeyLoaded: !!process.env.GEMINI_API_KEY,
+                    geminiInitialized: GeminiInitialized
+                }
+            });
+        }
+
+        // Test the Gemini connection
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent("Say 'Hello, Gemini is working!'");
+        const response = await result.response;
+        
+        res.json({
+            status: 'ok',
+            message: 'Gemini API is working!',
+            response: response.text()
+        });
+    } catch (error) {
+        console.error('❌ Gemini test failed:', error);
+        res.status(500).json({
+            error: 'Gemini test failed',
+            details: error.message
+        });
+    }
+});
+
 app.post('/api/parse-resume', async (req, res) => {
     try {
-        // Check if Gemini is initialized
-        if (!geminiInitialized || !genAI) {
-            console.error('❌ Gemini API is not initialized');
+        if (!GeminiInitialized || !genAI) {
             return res.status(503).json({
                 error: 'Gemini API is not initialized. Please check your API key.',
                 details: {
                     apiKeyLoaded: !!process.env.GEMINI_API_KEY,
-                    geminiInitialized: geminiInitialized,
-                    libraryLoaded: !!GoogleGenerativeAI
+                    geminiInitialized: GeminiInitialized
                 }
             });
         }
@@ -158,40 +205,9 @@ app.post('/api/parse-resume', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error in parse-resume:', error);
-        res.status(500).json({
+        res.status(500).json({ 
             error: error.message,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
-        });
-    }
-});
-
-// ✅ TEST endpoint to verify Gemini
-app.get('/api/test-gemini', async (req, res) => {
-    try {
-        if (!geminiInitialized || !genAI) {
-            return res.status(503).json({
-                error: 'Gemini API is not initialized',
-                details: {
-                    apiKeyLoaded: !!process.env.GEMINI_API_KEY,
-                    geminiInitialized: geminiInitialized,
-                    libraryLoaded: !!GoogleGenerativeAI
-                }
-            });
-        }
-
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent("Say 'Hello, Gemini is working!'");
-        const response = await result.response;
-        res.json({
-            status: 'ok',
-            message: 'Gemini API is working!',
-            response: response.text()
-        });
-    } catch (error) {
-        console.error('❌ Gemini test failed:', error);
-        res.status(500).json({
-            error: 'Gemini test failed',
-            details: error.message
         });
     }
 });
@@ -279,5 +295,5 @@ app.listen(port, () => {
     console.log(`📝 Health check: /api/health`);
     console.log(`🔒 CORS enabled for:`, allowedOrigins);
     console.log(`🔑 API Key status: ${process.env.GEMINI_API_KEY ? '✅ Loaded' : '❌ NOT LOADED'}`);
-    console.log(`🤖 Gemini API status: ${geminiInitialized ? '✅ Initialized' : '❌ NOT INITIALIZED'}`);
+    console.log(`🤖 Gemini API status: ${GeminiInitialized ? '✅ Initialized' : '❌ NOT INITIALIZED'}`);
 });

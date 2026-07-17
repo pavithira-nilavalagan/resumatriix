@@ -1,7 +1,18 @@
 // server.js
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// Try to load Gemini with fallback
+let GoogleGenerativeAI;
+try {
+    const genAI = require('@google/generative-ai');
+    GoogleGenerativeAI = genAI.GoogleGenerativeAI || genAI.default?.GoogleGenerativeAI || genAI;
+    console.log('✅ GoogleGenerativeAI loaded successfully');
+} catch (error) {
+    console.error('❌ Failed to load GoogleGenerativeAI:', error.message);
+    // Continue without it - we'll handle this later
+}
+
 require('dotenv').config();
 
 const app = express();
@@ -17,7 +28,6 @@ if (process.env.GEMINI_API_KEY) {
     console.log('🔑 API Key length:', process.env.GEMINI_API_KEY.length);
 } else {
     console.log('❌ WARNING: GEMINI_API_KEY is NOT set!');
-    console.log('❌ Please add it to Render Environment Variables');
 }
 
 // =============================================
@@ -49,19 +59,39 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
 
 // =============================================
-// Initialize Gemini with Error Handling
+// Initialize Gemini with Multiple Fallbacks
 // =============================================
-let genAI;
-try {
-    if (!process.env.GEMINI_API_KEY) {
-        throw new Error('GEMINI_API_KEY is not set in environment variables');
+let genAI = null;
+
+function initializeGemini() {
+    try {
+        // Check if we have the API key
+        if (!process.env.GEMINI_API_KEY) {
+            console.error('❌ GEMINI_API_KEY is not set in environment variables');
+            return false;
+        }
+
+        // Check if the library loaded
+        if (!GoogleGenerativeAI) {
+            console.error('❌ GoogleGenerativeAI library not loaded');
+            return false;
+        }
+
+        // Try to initialize
+        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        console.log('✅ Gemini API initialized successfully');
+        console.log('📝 Gemini API model available: gemini-2.5-flash');
+        return true;
+    } catch (error) {
+        console.error('❌ Failed to initialize Gemini API:', error.message);
+        console.error('📝 Error details:', error.stack);
+        genAI = null;
+        return false;
     }
-    genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    console.log('✅ Gemini API initialized successfully');
-} catch (error) {
-    console.error('❌ Failed to initialize Gemini API:', error.message);
-    // We'll handle this in the route
 }
+
+// Initialize on startup
+const geminiInitialized = initializeGemini();
 
 // =============================================
 // ROUTES
@@ -77,31 +107,42 @@ app.get('/', (req, res) => {
             parseResume: '/api/parse-resume (POST)'
         },
         apiKeyLoaded: !!process.env.GEMINI_API_KEY,
+        geminiInitialized: geminiInitialized,
         timestamp: new Date().toISOString()
     });
 });
 
-// ✅ HEALTH CHECK
+// ✅ HEALTH CHECK with detailed status
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok', 
+    res.json({
+        status: 'ok',
         timestamp: new Date().toISOString(),
         message: 'Server is running!',
         cors: 'enabled',
-        apiKeyLoaded: !!process.env.GEMINI_API_KEY
+        apiKeyLoaded: !!process.env.GEMINI_API_KEY,
+        geminiInitialized: geminiInitialized,
+        environment: process.env.NODE_ENV || 'production'
     });
 });
 
-// ✅ PARSE RESUME
+// ✅ PARSE RESUME with better error handling
 app.post('/api/parse-resume', async (req, res) => {
     try {
         // Check if Gemini is initialized
-        if (!genAI) {
-            throw new Error('Gemini API is not initialized. Please check your API key.');
+        if (!geminiInitialized || !genAI) {
+            console.error('❌ Gemini API is not initialized');
+            return res.status(503).json({
+                error: 'Gemini API is not initialized. Please check your API key.',
+                details: {
+                    apiKeyLoaded: !!process.env.GEMINI_API_KEY,
+                    geminiInitialized: geminiInitialized,
+                    libraryLoaded: !!GoogleGenerativeAI
+                }
+            });
         }
 
         const { resumeText } = req.body;
-        
+
         if (!resumeText) {
             return res.status(400).json({ error: 'No resume text provided' });
         }
@@ -117,7 +158,41 @@ app.post('/api/parse-resume', async (req, res) => {
 
     } catch (error) {
         console.error('❌ Error in parse-resume:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// ✅ TEST endpoint to verify Gemini
+app.get('/api/test-gemini', async (req, res) => {
+    try {
+        if (!geminiInitialized || !genAI) {
+            return res.status(503).json({
+                error: 'Gemini API is not initialized',
+                details: {
+                    apiKeyLoaded: !!process.env.GEMINI_API_KEY,
+                    geminiInitialized: geminiInitialized,
+                    libraryLoaded: !!GoogleGenerativeAI
+                }
+            });
+        }
+
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const result = await model.generateContent("Say 'Hello, Gemini is working!'");
+        const response = await result.response;
+        res.json({
+            status: 'ok',
+            message: 'Gemini API is working!',
+            response: response.text()
+        });
+    } catch (error) {
+        console.error('❌ Gemini test failed:', error);
+        res.status(500).json({
+            error: 'Gemini test failed',
+            details: error.message
+        });
     }
 });
 
@@ -178,7 +253,7 @@ Return ONLY the JSON, no other text.
         const result = await model.generateContent(prompt);
         const response = await result.response;
         let json = response.text();
-        
+
         json = json.replace(/```json/g, "");
         json = json.replace(/```/g, "");
         json = json.trim();
@@ -204,4 +279,5 @@ app.listen(port, () => {
     console.log(`📝 Health check: /api/health`);
     console.log(`🔒 CORS enabled for:`, allowedOrigins);
     console.log(`🔑 API Key status: ${process.env.GEMINI_API_KEY ? '✅ Loaded' : '❌ NOT LOADED'}`);
+    console.log(`🤖 Gemini API status: ${geminiInitialized ? '✅ Initialized' : '❌ NOT INITIALIZED'}`);
 });

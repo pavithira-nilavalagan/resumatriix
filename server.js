@@ -14,6 +14,7 @@ console.log('🔑 GEMINI_API_KEY loaded:', process.env.GEMINI_API_KEY ? '✅ Yes
 if (process.env.GEMINI_API_KEY) {
     console.log('🔑 API Key starts with:', process.env.GEMINI_API_KEY.substring(0, 10) + '...');
     console.log('🔑 API Key length:', process.env.GEMINI_API_KEY.length);
+    console.log('🔑 API Key format check:', process.env.GEMINI_API_KEY.startsWith('AIza') ? '✅ Valid format' : '❌ Invalid format (should start with AIza)');
 }
 
 // =============================================
@@ -55,7 +56,8 @@ app.get('/', (req, res) => {
         endpoints: {
             health: '/api/health',
             parseResume: '/api/parse-resume (POST)',
-            testGemini: '/api/test-gemini'
+            testGemini: '/api/test-gemini',
+            debugKey: '/api/debug-key'
         },
         apiKeyLoaded: !!process.env.GEMINI_API_KEY,
         timestamp: new Date().toISOString()
@@ -73,21 +75,41 @@ app.get('/api/health', (req, res) => {
 });
 
 // =============================================
+// DEBUG ENDPOINT - Check API Key Status
+// =============================================
+app.get('/api/debug-key', (req, res) => {
+    const key = process.env.GEMINI_API_KEY;
+    res.json({
+        keyLoaded: !!key,
+        keyLength: key ? key.length : 0,
+        keyPrefix: key ? key.substring(0, 10) : 'none',
+        startsWithAIza: key ? key.startsWith('AIza') : false,
+        environment: process.env.NODE_ENV || 'not set',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// =============================================
 // TEST GEMINI ENDPOINT (Direct API Call)
 // =============================================
 app.get('/api/test-gemini', async (req, res) => {
     try {
-        if (!process.env.GEMINI_API_KEY) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        
+        if (!apiKey) {
             return res.status(503).json({
                 error: 'API Key is not loaded',
-                details: { apiKeyLoaded: false }
+                details: { 
+                    apiKeyLoaded: false,
+                    message: 'Please set GEMINI_API_KEY environment variable'
+                }
             });
         }
 
-        console.log('🔍 Testing Gemini API with key:', process.env.GEMINI_API_KEY.substring(0, 10) + '...');
+        console.log('🔍 Testing Gemini API with key:', apiKey.substring(0, 10) + '...');
         
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
@@ -105,12 +127,14 @@ app.get('/api/test-gemini', async (req, res) => {
 
         const data = await response.json();
         console.log('📡 Gemini API Response Status:', response.status);
+        console.log('📡 Full Response:', JSON.stringify(data, null, 2));
         
         if (!response.ok) {
             return res.status(response.status).json({
                 error: 'Gemini API returned error',
                 details: data,
-                status: response.status
+                status: response.status,
+                statusText: response.statusText
             });
         }
 
@@ -125,35 +149,44 @@ app.get('/api/test-gemini', async (req, res) => {
         console.error('❌ Gemini test failed:', error);
         res.status(500).json({
             error: 'Gemini test failed',
-            details: error.message
+            details: error.message,
+            stack: error.stack
         });
     }
 });
 
 // =============================================
-// PARSE RESUME (Direct API Call)
+// PARSE RESUME - UPDATED AND CORRECTED
 // =============================================
 app.post('/api/parse-resume', async (req, res) => {
     try {
-        if (!process.env.GEMINI_API_KEY) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        
+        if (!apiKey) {
             return res.status(503).json({
-                error: 'API Key is not loaded',
-                details: { apiKeyLoaded: false }
+                error: 'API Key is not configured',
+                details: { 
+                    apiKeyLoaded: false,
+                    message: 'Please set GEMINI_API_KEY environment variable'
+                }
             });
         }
 
         const { resumeText } = req.body;
 
-        if (!resumeText) {
-            return res.status(400).json({ error: 'No resume text provided' });
-        }
-
-        if (resumeText.trim().length === 0) {
-            return res.status(400).json({ error: 'Resume text is empty' });
+        if (!resumeText || resumeText.trim().length === 0) {
+            return res.status(400).json({ 
+                error: 'No resume text provided',
+                details: { 
+                    received: resumeText,
+                    length: resumeText ? resumeText.length : 0
+                }
+            });
         }
 
         console.log('📄 Parsing resume text of length:', resumeText.length);
-        
+        console.log('📄 First 200 chars:', resumeText.substring(0, 200));
+
         const prompt = `
 Extract the resume information and return ONLY valid JSON with this exact structure:
 
@@ -202,9 +235,11 @@ ${resumeText}
 Return ONLY the JSON, no other text.
 `;
 
-        // Direct API call to Gemini
+        console.log('🤖 Sending request to Gemini API...');
+
+        // ✅ CORRECT: API key as query parameter
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
             {
                 method: 'POST',
                 headers: {
@@ -222,34 +257,40 @@ Return ONLY the JSON, no other text.
 
         const data = await response.json();
         console.log('📡 Gemini API Response Status:', response.status);
+        console.log('📡 Full Response:', JSON.stringify(data, null, 2));
 
         if (!response.ok) {
             console.error('❌ Gemini API Error:', data);
             return res.status(response.status).json({
                 error: 'Gemini API returned error',
-                details: data
+                details: data,
+                status: response.status,
+                statusText: response.statusText
             });
         }
 
         // Extract the response text
         let json = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        console.log('📝 Raw JSON response length:', json.length);
+        console.log('📝 First 200 chars:', json.substring(0, 200));
         
         // Clean up the response
         json = json.replace(/```json/g, "");
         json = json.replace(/```/g, "");
         json = json.trim();
 
-        console.log('📝 Parsed JSON length:', json.length);
+        console.log('📝 Cleaned JSON length:', json.length);
 
         try {
             const parsed = JSON.parse(json);
             console.log('✅ Resume parsed successfully');
             res.json(parsed);
         } catch (parseError) {
-            console.error('❌ Invalid JSON:', json);
+            console.error('❌ Invalid JSON received:', json);
             res.status(500).json({
                 error: 'AI returned invalid JSON format',
-                rawResponse: json
+                rawResponse: json,
+                parseError: parseError.message
             });
         }
 
@@ -257,7 +298,8 @@ Return ONLY the JSON, no other text.
         console.error('❌ Error in parse-resume:', error);
         res.status(500).json({
             error: 'Failed to parse resume',
-            details: error.message
+            details: error.message,
+            stack: error.stack
         });
     }
 });
@@ -270,5 +312,10 @@ app.listen(port, () => {
     console.log(`📝 Health check: /api/health`);
     console.log(`🔒 CORS enabled for:`, allowedOrigins);
     console.log(`🔑 API Key status: ${process.env.GEMINI_API_KEY ? '✅ Loaded' : '❌ NOT LOADED'}`);
-    console.log(`🤖 Using native Gemini API endpoint (no SDK required)`);
+    if (process.env.GEMINI_API_KEY) {
+        console.log(`🔑 API Key format: ${process.env.GEMINI_API_KEY.startsWith('AIza') ? '✅ Valid' : '❌ Invalid (should start with AIza)'}`);
+    }
+    console.log(`🤖 Using Gemini API with model: gemini-pro`);
+    console.log(`🧪 Test Gemini: /api/test-gemini`);
+    console.log(`🔍 Debug key: /api/debug-key`);
 });

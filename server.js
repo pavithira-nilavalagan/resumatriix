@@ -5,11 +5,48 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
 
 const app = express();
-// ⚠️ CHANGE THIS LINE - Use PORT from environment variable
 const port = process.env.PORT || 3000;
 
+// =============================================
+// CORS CONFIGURATION - FIX FOR DEPLOYMENT
+// =============================================
+// Allow multiple origins (your frontend domains)
+const allowedOrigins = [
+    'https://resumatriix.onrender.com',          // Your Render frontend
+    'https://resumatriix-backend.onrender.com',  // Your Render backend
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'http://localhost:8080',
+    'http://localhost:5000'
+];
+
+// Option 1: Specific origins (RECOMMENDED for production)
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('❌ Blocked CORS request from:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+}));
+
+// Option 2: Allow all origins (QUICK FIX - less secure)
+// app.use(cors({
+//     origin: '*',
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+// }));
+
 // Middleware
-app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('.'));
 
@@ -18,7 +55,12 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({ 
+        status: 'ok', 
+        timestamp: new Date().toISOString(),
+        cors: 'enabled',
+        allowedOrigins: allowedOrigins
+    });
 });
 
 // Parse resume endpoint
@@ -121,4 +163,5 @@ Return ONLY the JSON, no other text.
 app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
     console.log(`📝 Health check: /api/health`);
+    console.log(`🔒 CORS enabled for:`, allowedOrigins);
 });

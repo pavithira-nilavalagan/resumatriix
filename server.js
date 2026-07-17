@@ -315,7 +315,7 @@ app.listen(port, () => {
     if (process.env.GEMINI_API_KEY) {
         console.log(`🔑 API Key format: ${process.env.GEMINI_API_KEY.startsWith('AIza') ? '✅ Valid' : '❌ Invalid (should start with AIza)'}`);
     }
-    console.log(`🤖 Using Gemini API with model: gemini-pro`);
+    console.log(`🤖 Using Gemini API with model: gemini-2.5-flash`);
     console.log(`🧪 Test Gemini: /api/test-gemini`);
     console.log(`🔍 Debug key: /api/debug-key`);
 });
